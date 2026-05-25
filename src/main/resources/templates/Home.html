@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="en" xmlns:th="http://www.thymeleaf.com">
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
 
 <head>
     <meta charset="UTF-8" />
@@ -9,88 +9,286 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
     <style>
         .hero-section {
-            height: clamp(600px, 90vh, 900px);
+            min-height: 100vh;
             display: flex;
             align-items: center;
-            justify-content: center;
-            text-align: center;
-            background: radial-gradient(circle at 80% 20%, #ffeadb 0%, transparent 40%),
-                        radial-gradient(circle at 20% 80%, #f1f5f9 0%, transparent 40%);
+            padding: 140px 5% 80px;
+            position: relative;
+            overflow: hidden;
         }
+
+        .hero-grid {
+            display: grid;
+            grid-template-columns: 1.2fr 1fr;
+            gap: 60px;
+            align-items: center;
+            width: 100%;
+        }
+
         .hero-title {
-            font-size: clamp(3rem, 8vw, 5.5rem);
-            font-weight: 800;
-            margin-bottom: 24px;
+            font-size: clamp(2.5rem, 5vw, 4.5rem);
+            font-weight: 900;
+            line-height: 1.1;
+            margin: 16px 0 24px;
             color: var(--on-surface);
         }
+
         .hero-subtitle {
-            font-size: 1.25rem;
+            font-size: 1.15rem;
             color: var(--on-surface-variant);
-            max-width: 650px;
-            margin: 0 auto 40px;
+            max-width: 600px;
+            margin-bottom: 40px;
+            line-height: 1.7;
+        }
+
+        /* Right Side Glowing Graphic Card */
+        .hero-visual {
+            position: relative;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .visual-glowing-back {
+            position: absolute;
+            width: 320px;
+            height: 320px;
+            background: radial-gradient(circle, rgba(249, 115, 22, 0.25) 0%, transparent 70%);
+            z-index: 1;
+            animation: float-slow 6s ease-in-out infinite alternate;
+        }
+
+        .signature-card {
+            background: rgba(30, 41, 59, 0.4);
+            backdrop-filter: var(--blur);
+            border: 1px solid var(--outline-variant);
+            border-radius: 32px;
+            padding: 24px;
+            width: 100%;
+            max-width: 380px;
+            box-shadow: var(--shadow-lg);
+            z-index: 2;
+            transition: var(--transition-soft);
+            animation: card-float 4s ease-in-out infinite;
+        }
+
+        .signature-card:hover {
+            border-color: var(--primary);
+            box-shadow: var(--shadow-lg), 0 0 30px rgba(249, 115, 22, 0.15);
+        }
+
+        .signature-img {
+            width: 100%;
+            height: 240px;
+            object-fit: cover;
+            border-radius: 20px;
+            margin-bottom: 20px;
+            border: 1px solid var(--outline);
+        }
+
+        /* Badges */
+        .promo-badge {
+            background: rgba(249, 115, 22, 0.15);
+            color: var(--primary);
+            padding: 8px 16px;
+            border-radius: 50px;
+            font-size: 0.75rem;
+            font-weight: 800;
+            letter-spacing: 0.15em;
+            text-transform: uppercase;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            border: 1px solid rgba(249, 115, 22, 0.25);
+        }
+
+        /* Specialties Cards */
+        .specialty-card {
+            background: rgba(30, 41, 59, 0.35);
+            backdrop-filter: var(--blur);
+            border: 1px solid var(--outline);
+            border-radius: 24px;
+            overflow: hidden;
+            transition: var(--transition-soft);
+        }
+
+        .specialty-card:hover {
+            transform: translateY(-10px);
+            border-color: var(--primary);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .specialty-img {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+        }
+
+        /* Animations */
+        @keyframes float-slow {
+            0% { transform: scale(1) translate(0, 0); }
+            100% { transform: scale(1.15) translate(20px, -20px); }
+        }
+
+        @keyframes card-float {
+            0% { transform: translateY(0px) rotate(0deg); }
+            50% { transform: translateY(-12px) rotate(1deg); }
+            100% { transform: translateY(0px) rotate(0deg); }
+        }
+
+        @media (max-width: 992px) {
+            .hero-grid { grid-template-columns: 1fr; text-align: center; gap: 40px; }
+            .hero-subtitle { margin: 0 auto 30px; }
+            .hero-visual { order: -1; }
         }
     </style>
 </head>
 
 <body>
+    <!-- Top Glass Navigation Bar -->
     <nav th:replace="~{Navigation::navbar()}"></nav>
 
     <main>
+        <!-- Stunning Hero Section -->
         <section class="hero-section">
-            <div class="container animate-up">
-                <span style="letter-spacing: 0.2em; font-weight: 800; color: var(--primary); font-size: 0.75rem; text-transform: uppercase;">Premium Dining Experience</span>
-                <h1 class="hero-title">Taste the <span style="background: linear-gradient(120deg, var(--primary), var(--primary-light)); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">Fiesta</span> in every single bite.</h1>
-                <p class="hero-subtitle">Elevating gourmet cuisine with hand-picked ingredients and world-class culinary craftsmanship.</p>
-                <div style="display: flex; gap: 16px; justify-content: center;">
-                    <a href="/products" class="btn btn-primary">Explore Menu <i class="fa-solid fa-arrow-right"></i></a>
-                    <a href="/about" class="btn btn-outline">Our Story</a>
+            <div class="container hero-grid">
+                <!-- Left Content -->
+                <div class="animate-up">
+                    <div class="promo-badge">
+                        <i class="fa-solid fa-wand-magic-sparkles"></i> Culinary Masterpieces
+                    </div>
+                    <h1 class="hero-title">
+                        Taste the <span style="background: linear-gradient(120deg, var(--primary), var(--primary-light)); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">Fiesta</span> in every single bite.
+                    </h1>
+                    <p class="hero-subtitle">
+                        Elevating gourmet cuisine with hand-picked ingredients, authentic secret recipes, and world-class culinary craftsmanship delivered right to your doorstep.
+                    </p>
+                    <div style="display: flex; gap: 16px; flex-wrap: wrap;" class="hero-btns">
+                        <a href="/products" class="btn btn-primary">Explore Menu <i class="fa-solid fa-arrow-right"></i></a>
+                        <a href="/about" class="btn btn-outline">Our Story</a>
+                    </div>
+                </div>
+
+                <!-- Right Visual Signature Card -->
+                <div class="hero-visual animate-up" style="animation-delay: 0.15s;">
+                    <div class="visual-glowing-back"></div>
+                    <div class="signature-card">
+                        <img th:src="@{/Images/biryani/Biryani_of_Hyderabadi.jpg}" class="signature-img" alt="Chicken Biryani">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                            <span style="font-size: 0.7rem; font-weight: 800; color: var(--primary); text-transform: uppercase;">Signature Special</span>
+                            <span style="font-size: 0.8rem; color: #ffc107; font-weight: 700;"><i class="fa-solid fa-star"></i> 4.9 (250+)</span>
+                        </div>
+                        <h3 style="font-size: 1.25rem; margin: 0 0 6px;">Hyderabadi Chicken Biryani</h3>
+                        <p style="font-size: 0.8rem; color: var(--on-surface-variant); margin-bottom: 15px;">Aromatic long-grain basmati rice cooked with spice-marinated chicken.</p>
+                        <div style="display: flex; justify-content: space-between; align-items: center;">
+                            <span style="font-size: 1.2rem; font-weight: 900; color: var(--on-surface);">₹350</span>
+                            <a href="/login" class="btn btn-primary" style="padding: 8px 16px; font-size: 0.75rem; border-radius: 8px;">Order Now</a>
+                        </div>
+                    </div>
                 </div>
             </div>
         </section>
 
-        <section class="section-padding" style="background: var(--surface-variant);">
+        <!-- Dynamic Featured Specialties -->
+        <section class="section-padding" style="background: var(--surface-variant); border-top: 1px solid var(--outline);">
             <div class="container">
-                <div style="text-align: center; margin-bottom: 64px;">
-                    <h2 style="font-size: 2.5rem; margin-bottom: 16px;">Why Food Fiesta?</h2>
-                    <p style="color: var(--on-surface-variant);">Discover what sets our dining experience apart.</p>
+                <div style="text-align: center; margin-bottom: 64px;" class="animate-up">
+                    <span style="color: var(--primary); font-weight: 800; letter-spacing: 0.1em; text-transform: uppercase; font-size: 0.8rem;">Our Menu</span>
+                    <h2 style="font-size: 2.5rem; margin-top: 8px; margin-bottom: 16px;">Fiesta Specialties</h2>
+                    <p style="color: var(--on-surface-variant); max-width: 500px; margin: 0 auto;">Discover the dishes curated specifically by our master chefs for this week.</p>
                 </div>
-                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 32px;">
+
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 32px;" class="animate-up">
+                    <!-- Item 1 -->
+                    <div class="specialty-card">
+                        <img th:src="@{/Images/paneer/paneer-butter-masala.jpg}" class="specialty-img" alt="Paneer Butter Masala">
+                        <div style="padding: 24px;">
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                                <span style="color: #22c55e; font-weight: 700; font-size: 0.75rem;"><i class="fa-solid fa-circle-dot"></i> VEG</span>
+                                <span style="font-weight: 800; color: var(--primary);">₹280</span>
+                            </div>
+                            <h3 style="font-size: 1.2rem; margin-bottom: 8px;">Paneer Butter Masala</h3>
+                            <p style="font-size: 0.85rem; color: var(--on-surface-variant);">Rich and creamy cottage cheese cubes served in a velvet tomato gravy.</p>
+                        </div>
+                    </div>
+                    <!-- Item 2 -->
+                    <div class="specialty-card">
+                        <img th:src="@{/Images/chicken/butter-chicken.jpg}" class="specialty-img" alt="Chicken Tikka">
+                        <div style="padding: 24px;">
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                                <span style="color: #ef4444; font-weight: 700; font-size: 0.75rem;"><i class="fa-solid fa-circle-dot"></i> NON-VEG</span>
+                                <span style="font-weight: 800; color: var(--primary);">₹320</span>
+                            </div>
+                            <h3 style="font-size: 1.2rem; margin-bottom: 8px;">Chicken Tikka Tandoori</h3>
+                            <p style="font-size: 0.85rem; color: var(--on-surface-variant);">Smoky charcoal-grilled tandoori chicken chunks marinated in secret spices.</p>
+                        </div>
+                    </div>
+                    <!-- Item 3 -->
+                    <div class="specialty-card">
+                        <img th:src="@{/Images/north-india-food/Gulab Jamun.jpg}" class="specialty-img" alt="Gulab Jamun">
+                        <div style="padding: 24px;">
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                                <span style="color: #22c55e; font-weight: 700; font-size: 0.75rem;"><i class="fa-solid fa-circle-dot"></i> VEG</span>
+                                <span style="font-weight: 800; color: var(--primary);">₹120</span>
+                            </div>
+                            <h3 style="font-size: 1.2rem; margin-bottom: 8px;">Gulab Jamun (2pcs)</h3>
+                            <p style="font-size: 0.85rem; color: var(--on-surface-variant);">Warm milk-solid dumplings dipped in fragrant sugar syrup.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Advanced Features Grid -->
+        <section class="section-padding">
+            <div class="container">
+                <div style="text-align: center; margin-bottom: 64px;" class="animate-up">
+                    <span style="color: var(--primary); font-weight: 800; letter-spacing: 0.1em; text-transform: uppercase; font-size: 0.8rem;">Experience</span>
+                    <h2 style="font-size: 2.5rem; margin-top: 8px; margin-bottom: 16px;">What Sets Us Apart</h2>
+                    <p style="color: var(--on-surface-variant);">Redefining the golden standard in gourmet home dining.</p>
+                </div>
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 32px;" class="animate-up">
                     <div class="card-glass">
-                        <div style="width: 56px; height: 56px; background: var(--primary-container); border-radius: 16px; display: flex; align-items: center; justify-content: center; margin-bottom: 24px;">
+                        <div style="width: 56px; height: 56px; background: rgba(249, 115, 22, 0.1); border-radius: 16px; display: flex; align-items: center; justify-content: center; margin-bottom: 24px; border: 1px solid rgba(249, 115, 22, 0.2);">
                             <i class="fa-solid fa-bolt" style="font-size: 1.5rem; color: var(--primary);"></i>
                         </div>
-                        <h3 style="margin-bottom: 12px;">Fast Delivery</h3>
-                        <p style="color: var(--on-surface-variant);">Piping hot meals delivered to your doorstep in 30 minutes or less.</p>
+                        <h3 style="margin-bottom: 12px; font-size: 1.25rem;">Ultra-Fast Logistics</h3>
+                        <p style="color: var(--on-surface-variant); font-size: 0.9rem;">Fresh, piping hot gourmet meals delivered safely to your doorstep in 30 minutes.</p>
                     </div>
-                    <div class="card-glass" style="transition-delay: 0.1s;">
-                        <div style="width: 56px; height: 56px; background: var(--primary-container); border-radius: 16px; display: flex; align-items: center; justify-content: center; margin-bottom: 24px;">
+                    <div class="card-glass">
+                        <div style="width: 56px; height: 56px; background: rgba(249, 115, 22, 0.1); border-radius: 16px; display: flex; align-items: center; justify-content: center; margin-bottom: 24px; border: 1px solid rgba(249, 115, 22, 0.2);">
                             <i class="fa-solid fa-leaf" style="font-size: 1.5rem; color: var(--primary);"></i>
                         </div>
-                        <h3 style="margin-bottom: 12px;">Farm Fresh</h3>
-                        <p style="color: var(--on-surface-variant);">100% organic ingredients sourced directly from local sustainable farms.</p>
+                        <h3 style="margin-bottom: 12px; font-size: 1.25rem;">Organic Sustainable Sourcing</h3>
+                        <p style="color: var(--on-surface-variant); font-size: 0.9rem;">100% natural, farm-fresh local ingredients prepared clean with premium hygiene checks.</p>
                     </div>
-                    <div class="card-glass" style="transition-delay: 0.2s;">
-                        <div style="width: 56px; height: 56px; background: var(--primary-container); border-radius: 16px; display: flex; align-items: center; justify-content: center; margin-bottom: 24px;">
-                            <i class="fa-solid fa-hat-chef" style="font-size: 1.5rem; color: var(--primary);"></i>
+                    <div class="card-glass">
+                        <div style="width: 56px; height: 56px; background: rgba(249, 115, 22, 0.1); border-radius: 16px; display: flex; align-items: center; justify-content: center; margin-bottom: 24px; border: 1px solid rgba(249, 115, 22, 0.2);">
+                            <i class="fa-solid fa-utensils" style="font-size: 1.5rem; color: var(--primary);"></i>
                         </div>
-                        <h3 style="margin-bottom: 12px;">Expert Chefs</h3>
-                        <p style="color: var(--on-surface-variant);">Master chefs dedicated to creating culinary masterpieces for your palate.</p>
+                        <h3 style="margin-bottom: 12px; font-size: 1.25rem;">Five-Star Culinary Craft</h3>
+                        <p style="color: var(--on-surface-variant); font-size: 0.9rem;">Dishes designed and carefully cooked by experienced master chefs with rich culinary heritage.</p>
                     </div>
                 </div>
             </div>
         </section>
     </main>
 
-    <footer style="padding: 80px 5%; border-top: 1px solid var(--outline); background: white;">
+    <!-- Modern Obsidian Dark Footer -->
+    <footer style="padding: 80px 5% 40px; border-top: 1px solid var(--outline); background: rgba(17, 24, 30, 0.5); backdrop-filter: var(--blur);">
         <div class="container" style="display: flex; flex-direction: column; align-items: center; text-align: center;">
-            <a href="/" class="nav-logo" style="font-size: 2rem; margin-bottom: 24px;">Food Fiesta</a>
-            <p style="color: var(--on-surface-variant); max-width: 400px; margin-bottom: 32px;">Setting the gold standard in premium dining and doorstep delivery.</p>
-            <div style="display: flex; gap: 24px; margin-bottom: 48px;">
-                <a href="#" style="color: var(--on-surface); font-size: 1.25rem;"><i class="fa-brands fa-instagram"></i></a>
-                <a href="#" style="color: var(--on-surface); font-size: 1.25rem;"><i class="fa-brands fa-x-twitter"></i></a>
-                <a href="#" style="color: var(--on-surface); font-size: 1.25rem;"><i class="fa-brands fa-facebook"></i></a>
+            <a href="/" class="nav-logo" style="font-size: 2.2rem; margin-bottom: 20px;">
+                <i class="fa-solid fa-fire-burner"></i> Food Fiesta
+            </a>
+            <p style="color: var(--on-surface-variant); max-width: 450px; margin-bottom: 32px; font-size: 0.9rem;">
+                Crafting fine gastronomic dining and executing rapid gourmet doorstep delivery with passion.
+            </p>
+            <div style="display: flex; gap: 24px; margin-bottom: 40px;">
+                <a href="#" style="color: var(--on-surface-variant); font-size: 1.4rem; transition: var(--transition-soft);" onmouseover="this.style.color='#f97316'" onmouseout="this.style.color='var(--on-surface-variant)'"><i class="fa-brands fa-instagram"></i></a>
+                <a href="#" style="color: var(--on-surface-variant); font-size: 1.4rem; transition: var(--transition-soft);" onmouseover="this.style.color='#f97316'" onmouseout="this.style.color='var(--on-surface-variant)'"><i class="fa-brands fa-x-twitter"></i></a>
+                <a href="#" style="color: var(--on-surface-variant); font-size: 1.4rem; transition: var(--transition-soft);" onmouseover="this.style.color='#f97316'" onmouseout="this.style.color='var(--on-surface-variant)'"><i class="fa-brands fa-facebook"></i></a>
             </div>
-            <p style="font-size: 0.875rem; color: var(--on-surface-variant); opacity: 0.7;">&copy; 2026 Food Fiesta. All rights reserved.</p>
+            <p style="font-size: 0.8rem; color: var(--on-surface-variant); opacity: 0.6;">&copy; 2026 Food Fiesta Inc. All rights reserved. Secured under Multi-Layer encryption gateways.</p>
         </div>
     </footer>
 </body>

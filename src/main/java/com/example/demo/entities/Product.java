@@ -56,6 +56,4 @@ public class Product
 				+ ", isVeg=" + isVeg + "]";
 	}
 
-
-
 }

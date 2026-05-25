@@ -1,14 +1,11 @@
 package com.example.demo.controllers;
 
-import java.security.Principal;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -19,7 +16,6 @@ import com.example.demo.count.*;
 import com.example.demo.entities.*;
 import com.example.demo.loginCredentials.*;
 import com.example.demo.services.*;
-import jakarta.validation.Valid;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
@@ -34,8 +30,6 @@ public class AdminController {
 	private ProductServices productServices;	
 	@Autowired
 	private OrderServices orderServices;
-
-// Removed instance variables email and user to prevent data leakage in singleton controller
 
 	@PostMapping("/adminLogin")
 	@Operation(summary = "Admin login authentication", description = "Validates admin credentials and redirects to the services dashboard")
@@ -87,6 +81,7 @@ public class AdminController {
 		session.invalidate();
 		return "redirect:/home";
 	}
+	
 	@PostMapping("/product/search")
 	@Operation(summary = "Search for a product", description = "Finds a specific food item by name and returns its details")
 	public String seachHandler(@RequestParam("productName") String name, Model model, jakarta.servlet.http.HttpSession session) {
@@ -108,6 +103,7 @@ public class AdminController {
 		}
 		return "BuyProduct";
 	}
+	
 	@GetMapping("/admin/services")
 	@Operation(summary = "Admin Services Dashboard", description = "Displays the overview of all users, admins, products, and orders")
 	public String returnBack(Model model, jakarta.servlet.http.HttpSession session) {
@@ -125,21 +121,22 @@ public class AdminController {
 
 		return "Admin_Page";
 	}
+	
 	@GetMapping("/addAdmin")
 	@Operation(summary = "View Add Admin page", description = "Serves the HTML form to create a new administrator account")
 	public String addAdminPage()
 	{
 		return "Add_Admin";
 	}
+	
 	@PostMapping("addingAdmin")
 	@Operation(summary = "Create a new Admin", description = "Processes the form submission to save a new administrator to the database")
 	public String addAdmin( @ModelAttribute Admin admin)
 	{
-
 		this.adminServices.addAdmin(admin);
 		return "redirect:/admin/services";
-
 	}
+	
 	@GetMapping("/updateAdmin/{adminId}")
 	@Operation(summary = "View Update Admin page", description = "Loads the specified admin's details into the update form")
 	public String update(@PathVariable("adminId") int id,Model model)
@@ -148,6 +145,7 @@ public class AdminController {
 		model.addAttribute("admin", admin);
 		return "Update_Admin";
 	}
+	
 	@GetMapping("/updatingAdmin/{id}")
 	@Operation(summary = "Process Admin update", description = "Updates an existing administrator's information in the database")
 	public String updateAdmin(@ModelAttribute Admin admin,@PathVariable("id") int id)
@@ -155,6 +153,7 @@ public class AdminController {
 		this.adminServices.update(admin, id);
 		return "redirect:/admin/services";
 	}
+	
 	@GetMapping("/deleteAdmin/{id}")
 	@Operation(summary = "Delete an Admin", description = "Removes an administrator account by ID")
 	public String deleteAdmin(@PathVariable("id") int id)
@@ -162,6 +161,7 @@ public class AdminController {
 		this.adminServices.delete(id);
 		return "redirect:/admin/services";
 	}
+	
 	@GetMapping("/addProduct")
 	@Operation(summary = "View Add Product page", description = "Serves the HTML form to register a new food item")
 	public String addProduct()

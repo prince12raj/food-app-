@@ -7,7 +7,6 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
-import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 
 @Entity
@@ -37,8 +36,6 @@ public class Orders
 	public void setOrderDate(Date orderDate) {
 		this.orderDate = orderDate;
 	}
-
-	
 
 	public int getoId() {
 		return oId;
@@ -80,7 +77,6 @@ public class Orders
 		this.user = user;
 	}
 	
-
 	public double getTotalAmmout() {
 		return totalAmmout;
 	}
@@ -119,6 +115,5 @@ public class Orders
 				+ ", orderDate=" + orderDate + ", totalAmmout=" + totalAmmout + ", address=" + address 
 				+ ", phone=" + phone + ", couponCode=" + couponCode + ", user=" + user + "]";
 	}
-
 
 }
