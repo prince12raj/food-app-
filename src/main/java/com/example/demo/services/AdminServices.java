@@ -52,7 +52,7 @@ public class AdminServices
 	public boolean validateAdminCredentials(String email,String password)
 	{
 		Admin admin=adminRepository.findByAdminEmail(email);
-		if(admin!=null && admin.getAdminPassword().equals(password))
+		if(admin!=null && admin.getAdminPassword() != null && admin.getAdminPassword().equals(password))
 		{
 			return true;
 		}

@@ -55,10 +55,10 @@ public class UserServices
 		List<User> users = (List<User>) this.userRepository.findAll();
 		for(User u:users)
 		{
-		if(u!=null && u.getUpassword().equals(password) && u.getUemail().equals(email))
-		{
-			return true;
-		}
+			if(u!=null && u.getUpassword() != null && u.getUpassword().equals(password) && u.getUemail() != null && u.getUemail().equals(email))
+			{
+				return true;
+			}
 		}
 		return false;
 	}
