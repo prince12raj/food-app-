@@ -11,9 +11,10 @@ public class Exceptions
 	@ResponseStatus(value=HttpStatus.INTERNAL_SERVER_ERROR)
 
 	@ExceptionHandler(value=Exception.class) 
-	public String handler()
+	public String handler(Exception e)
 	{
 		System.out.println("Exception Handled....!!!!");
+		e.printStackTrace();
 		return "exception"; 
 	}
 

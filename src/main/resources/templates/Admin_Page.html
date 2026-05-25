@@ -201,8 +201,8 @@
                     <tbody>
                         <tr th:each="order : ${orders}">
                             <td>
-                                <div style="font-weight: 700;" th:text="${order.user.uname}">User</div>
-                                <div style="font-size: 0.75rem; color: var(--on-surface-variant);" th:text="${order.user.uemail}">Email</div>
+                                <div style="font-weight: 700;" th:text="${order.user != null ? order.user.uname : 'Guest'}">User</div>
+                                <div style="font-size: 0.75rem; color: var(--on-surface-variant);" th:text="${order.user != null ? order.user.uemail : 'N/A'}">Email</div>
                             </td>
                             <td th:text="${order.oName}">Dish</td>
                             <td th:text="${order.oQuantity}">1</td>
