@@ -5,6 +5,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" th:href="@{/css/main.css}">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    
+    <!-- React & Babel CDNs to render React chatbot inside Thymeleaf seamlessly -->
+    <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
 </head>
 <body>
     <nav th:fragment="navbar()" class="navbar">
@@ -26,13 +31,18 @@
             <a th:if="${session.loggedInUser == null && session.loggedInAdmin == null}" href="/login" class="btn btn-primary" style="padding: 10px 24px; color: white;">Sign In</a>
         </div>
         
-        <!-- Nested AI Assistant fragment call so it loads everywhere the navbar is imported -->
+        <!-- Target container for React Chatbot -->
         <div th:replace="~{Navigation::ai()}"></div>
     </nav>
 
-    <!-- Floating AI Assistant Chatbot Fragment -->
+    <!-- Floating AI Assistant Chatbot React-Mounting Fragment -->
     <div th:fragment="ai()">
-        <!-- CSS for AI Assistant -->
+        <!-- React & Babel CDNs to render React chatbot inside Thymeleaf seamlessly on any page -->
+        <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
+        <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
+        <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+        <!-- CSS styling for React Chatbot -->
         <style>
             .ai-chat-btn {
                 position: fixed;
@@ -40,7 +50,7 @@
                 right: 30px;
                 width: 60px;
                 height: 60px;
-                background: linear-gradient(135deg, var(--primary), var(--primary-light));
+                background: linear-gradient(135deg, var(--primary), var(--primary-dark));
                 color: white;
                 border-radius: 50%;
                 display: flex;
@@ -48,14 +58,14 @@
                 justify-content: center;
                 font-size: 1.5rem;
                 cursor: pointer;
-                box-shadow: 0 10px 25px rgba(194, 65, 12, 0.4);
+                box-shadow: 0 10px 25px rgba(249, 115, 22, 0.4);
                 transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
                 z-index: 9999;
-                border: 2px solid rgba(255, 255, 255, 0.2);
+                border: 2px solid rgba(255, 255, 255, 0.1);
             }
             .ai-chat-btn:hover {
                 transform: scale(1.1) rotate(5deg);
-                box-shadow: 0 12px 30px rgba(194, 65, 12, 0.6);
+                box-shadow: 0 12px 30px rgba(249, 115, 22, 0.6);
             }
             .ai-chat-btn .pulse {
                 position: absolute;
@@ -77,11 +87,11 @@
                 right: 30px;
                 width: 380px;
                 height: 520px;
-                background: rgba(255, 255, 255, 0.85);
-                backdrop-filter: blur(20px);
-                border: 1px solid rgba(255, 255, 255, 0.4);
-                border-radius: 24px;
-                box-shadow: 0 20px 40px rgba(0,0,0,0.15);
+                background: rgba(17, 24, 39, 0.85);
+                backdrop-filter: blur(25px);
+                border: 1px solid var(--outline);
+                border-radius: 28px;
+                box-shadow: var(--shadow-lg);
                 display: flex;
                 flex-direction: column;
                 overflow: hidden;
@@ -97,24 +107,25 @@
                 pointer-events: auto;
             }
             .ai-chat-header {
-                background: linear-gradient(135deg, var(--primary), var(--primary-light));
-                padding: 20px;
+                background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+                padding: 20px 24px;
                 color: white;
                 display: flex;
                 align-items: center;
                 justify-content: space-between;
-                border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+                border-bottom: 1px solid rgba(255, 255, 255, 0.05);
             }
             .ai-chat-header h3 {
-                font-size: 1.1rem;
-                font-weight: 700;
+                font-size: 1.15rem;
+                font-weight: 800;
                 display: flex;
                 align-items: center;
                 gap: 8px;
                 margin: 0;
+                font-family: 'Outfit', sans-serif;
             }
             .ai-chat-close {
-                background: rgba(255, 255, 255, 0.2);
+                background: rgba(255, 255, 255, 0.15);
                 border: none;
                 color: white;
                 width: 28px;
@@ -127,23 +138,23 @@
                 transition: all 0.2s ease;
             }
             .ai-chat-close:hover {
-                background: rgba(255,255,255,0.4);
+                background: rgba(255,255,255,0.3);
             }
             .ai-chat-messages {
                 flex: 1;
-                padding: 20px;
+                padding: 20px 24px;
                 overflow-y: auto;
                 display: flex;
                 flex-direction: column;
                 gap: 12px;
-                background: rgba(248, 250, 252, 0.5);
+                background: rgba(15, 23, 42, 0.45);
             }
             .ai-msg {
-                max-width: 80%;
+                max-width: 85%;
                 padding: 12px 16px;
-                border-radius: 16px;
+                border-radius: 18px;
                 font-size: 0.875rem;
-                line-height: 1.4;
+                line-height: 1.45;
                 animation: msg-fade 0.3s ease;
             }
             @keyframes msg-fade {
@@ -151,11 +162,11 @@
                 to { opacity: 1; transform: translateY(0); }
             }
             .ai-msg.bot {
-                background: white;
+                background: rgba(30, 41, 59, 0.8);
                 color: var(--on-surface);
                 align-self: flex-start;
                 border-bottom-left-radius: 4px;
-                box-shadow: 0 2px 5px rgba(0,0,0,0.02);
+                box-shadow: var(--shadow-sm);
                 border: 1px solid var(--outline);
             }
             .ai-msg.user {
@@ -163,34 +174,36 @@
                 color: white;
                 align-self: flex-end;
                 border-bottom-right-radius: 4px;
-                box-shadow: 0 4px 10px rgba(194, 65, 12, 0.2);
+                box-shadow: 0 4px 12px rgba(249, 115, 22, 0.25);
+                border: 1px solid rgba(255, 255, 255, 0.1);
             }
             .ai-chat-chips {
                 display: flex;
                 flex-wrap: wrap;
                 gap: 8px;
-                padding: 12px 20px;
-                background: white;
+                padding: 12px 24px;
+                background: rgba(15, 23, 42, 0.8);
                 border-top: 1px solid var(--outline);
             }
             .ai-chip {
                 padding: 6px 14px;
-                background: var(--primary-container);
-                color: var(--primary);
+                background: rgba(249, 115, 22, 0.1);
+                color: var(--primary-light);
                 border-radius: 50px;
-                font-size: 0.75rem;
-                font-weight: 600;
+                font-size: 0.725rem;
+                font-weight: 700;
                 cursor: pointer;
                 transition: all 0.2s ease;
-                border: 1px solid rgba(194, 65, 12, 0.1);
+                border: 1px solid rgba(249, 115, 22, 0.15);
             }
             .ai-chip:hover {
                 background: var(--primary);
                 color: white;
+                border-color: var(--primary);
             }
             .ai-chat-input-area {
-                padding: 15px 20px;
-                background: white;
+                padding: 15px 24px;
+                background: rgba(17, 24, 39, 0.9);
                 display: flex;
                 gap: 10px;
                 border-top: 1px solid var(--outline);
@@ -199,23 +212,29 @@
             .ai-input {
                 flex: 1;
                 border: 1px solid var(--outline);
+                background: rgba(15, 23, 42, 0.6);
                 border-radius: 12px;
-                padding: 10px 14px;
+                padding: 12px 14px;
                 font-size: 0.875rem;
+                color: white;
                 outline: none;
                 transition: all 0.2s ease;
             }
+            .ai-input::placeholder {
+                color: #4b5563;
+            }
             .ai-input:focus {
                 border-color: var(--primary);
-                box-shadow: 0 0 0 3px rgba(194, 65, 12, 0.1);
+                background: rgba(15, 23, 42, 0.8);
+                box-shadow: 0 0 0 3px rgba(249, 115, 22, 0.15);
             }
             .ai-send-btn {
                 background: var(--primary);
                 color: white;
                 border: none;
-                width: 38px;
-                height: 38px;
-                border-radius: 10px;
+                width: 42px;
+                height: 42px;
+                border-radius: 12px;
                 display: flex;
                 align-items: center;
                 justify-content: center;
@@ -223,114 +242,173 @@
                 transition: all 0.2s ease;
             }
             .ai-send-btn:hover {
-                background: var(--primary-light);
+                background: var(--primary-dark);
                 transform: scale(1.05);
+            }
+            @keyframes dot-blink {
+                0% { opacity: .2; }
+                20% { opacity: 1; }
+                100% { opacity: .2; }
+            }
+            .dot-typing {
+                display: inline-flex;
+                align-items: center;
+            }
+            .dot-typing::after {
+                content: '...';
+                animation: dot-blink 1.4s infinite both;
+                font-size: 1.25rem;
+                line-height: 1;
+            }
+
+            /* Responsive rules for mobile screen support */
+            @media (max-width: 480px) {
+                .ai-chat-window {
+                    width: calc(100% - 40px);
+                    right: 20px;
+                    bottom: 90px;
+                    height: calc(100vh - 140px);
+                    max-height: 480px;
+                    border-radius: 20px;
+                }
+                .ai-chat-btn {
+                    bottom: 20px;
+                    right: 20px;
+                    width: 50px;
+                    height: 50px;
+                    font-size: 1.25rem;
+                }
+                .ai-chat-header {
+                    padding: 16px 20px;
+                }
+                .ai-chat-messages {
+                    padding: 16px 20px;
+                }
+                .ai-chat-chips {
+                    padding: 10px 20px;
+                }
+                .ai-chat-input-area {
+                    padding: 12px 20px;
+                }
             }
         </style>
 
-        <!-- AI Button -->
-        <div class="ai-chat-btn" onclick="toggleAIChat()">
-            <div class="pulse"></div>
-            <i class="fa-solid fa-robot"></i>
-        </div>
+        <!-- Container where React chatbot mounts -->
+        <div id="react-chatbot-root"></div>
 
-        <!-- AI Chat Window -->
-        <div class="ai-chat-window" id="aiChatWindow">
-            <div class="ai-chat-header">
-                <h3><i class="fa-solid fa-wand-magic-sparkles"></i> Fiesta AI Assistant</h3>
-                <button class="ai-chat-close" onclick="toggleAIChat()">
-                    <i class="fa-solid fa-xmark"></i>
-                </button>
-            </div>
+        <!-- React Component Source compiled on-the-fly by Babel in the browser -->
+        <script type="text/babel">
+            const ChatbotApp = () => {
+                const [isOpen, setIsOpen] = React.useState(false);
+                const [messages, setMessages] = React.useState([
+                    { text: "👋 Hello! Welcome to Food Fiesta! I am your reactive React-powered AI Assistant. How can I help you satisfy your cravings today?", isBot: true }
+                ]);
+                const [inputValue, setInputValue] = React.useState("");
+                const [isTyping, setIsTyping] = React.useState(false);
+                
+                const messagesEndRef = React.useRef(null);
 
-            <div class="ai-chat-messages" id="aiChatMessages">
-                <div class="ai-msg bot">
-                    👋 Hello! Welcome to Food Fiesta! I am your AI Assistant. How can I help you satisfy your cravings today?
-                </div>
-            </div>
+                // Auto-scroll logic inside React effect
+                React.useEffect(() => {
+                    if (messagesEndRef.current) {
+                        messagesEndRef.current.scrollIntoView({ behavior: 'smooth' });
+                    }
+                }, [messages, isTyping]);
 
-            <div class="ai-chat-chips">
-                <span class="ai-chip" onclick="askAIChip('Show Veg Dishes 🥗')">Show Veg Dishes 🥗</span>
-                <span class="ai-chip" onclick="askAIChip('Show Non-Veg Specials 🍗')">Non-Veg Specials 🍗</span>
-                <span class="ai-chip" onclick="askAIChip('Check Coupon Deals 🎟️')">Active Coupons 🎟️</span>
-                <span class="ai-chip" onclick="askAIChip('How to Order? 💡')">How to Order? 💡</span>
-            </div>
+                const handleSend = (textToSend) => {
+                    const text = textToSend || inputValue;
+                    if (!text.trim()) return;
 
-            <div class="ai-chat-input-area">
-                <input type="text" class="ai-input" id="aiChatInput" placeholder="Ask about items, coupons, orders..." onkeypress="handleAIKeyPress(event)">
-                <button class="ai-send-btn" onclick="sendAIMessage()">
-                    <i class="fa-solid fa-paper-plane"></i>
-                </button>
-            </div>
-        </div>
+                    setMessages(prev => [...prev, { text, isBot: false }]);
+                    if (!textToSend) setInputValue("");
+                    
+                    setIsTyping(true);
 
-        <!-- AI Chat JavaScript -->
-        <script>
-            function toggleAIChat() {
-                const chatWindow = document.getElementById("aiChatWindow");
-                chatWindow.classList.toggle("active");
-            }
+                    // Simulate AI thinking and responding
+                    setTimeout(() => {
+                        setIsTyping(false);
+                        const response = getResponse(text);
+                        setMessages(prev => [...prev, { text: response, isBot: true }]);
+                    }, 800);
+                };
 
-            function handleAIKeyPress(event) {
-                if (event.key === "Enter") {
-                    sendAIMessage();
-                }
-            }
+                const getResponse = (query) => {
+                    const q = query.toLowerCase();
+                    if (q.includes("veg") && !q.includes("non")) {
+                        return "💚 <b>Here are our delicious Vegetarian options:</b><br><br>• <b>Paneer Butter Masala (₹280)</b>: Rich cottage cheese in velvety tomato gravy.<br>• <b>Veg Manchurian (₹220)</b>: Savory veggie balls in tangy oriental soy sauce.<br>• <b>Gulab Jamun (₹120)</b>: Soft warm milk-solid dumplings dipped in cardamom syrup.<br><br>💡 <i>Tip: Log in to your User Account and click 'Order Now' to apply coupons!</i>";
+                    }
+                    if (q.includes("non-veg") || q.includes("chicken") || q.includes("meat")) {
+                        return "🍗 <b>Here are our mouth-watering Non-Vegetarian specials:</b><br><br>• <b>Hyderabadi Chicken Biryani (₹350)</b>: Authentic long-grain basmati rice cooked with tender chicken.<br>• <b>Chicken Tikka Tandoori (₹320)</b>: Charcoal-grilled smoky tandoori chicken.<br><br>🎉 <i>Use coupon <b>BIRYANI20</b> to get 20% off on all Biryani orders!</i>";
+                    }
+                    if (q.includes("coupon") || q.includes("code") || q.includes("discount") || q.includes("deal")) {
+                        return "🎟️ <b>Active Coupons at Food Fiesta:</b><br><br>• <b style='color: var(--primary-light);'>WELCOME10</b>: 10% discount on all items.<br>• <b style='color: var(--primary-light);'>FIESTA50</b>: Flat ₹50 off on order values of ₹150 or more.<br>• <b style='color: var(--primary-light);'>BIRYANI20</b>: 20% discount on any Biryani order.<br><br>✍️ <i>To apply, select a dish on your Dashboard, type the code in the Checkout Form, and watch the price drop instantly!</i>";
+                    }
+                    if (q.includes("order") || q.includes("how") || q.includes("buy")) {
+                        return "💡 <b>Ordering is simple:</b><br><br>1. Click <b>Sign In</b> (top right) and choose <b>User Login</b>.<br>2. Don't have an account? Click <b>Create one now</b>.<br>3. Once logged in, you will be taken to your <b>User Dashboard</b> showing our full menu.<br>4. Click <b>Order Now</b>, fill in your Delivery Address, Phone Number, and Coupon Code, then click <b>Confirm</b>.<br><br>Your order details will update instantly in our Railway SQL database! 🚀";
+                    }
+                    if (q.includes("hello") || q.includes("hi") || q.includes("hey")) {
+                        return "Hello! I am your Food Fiesta AI Guide. I can show you <b>Veg</b> or <b>Non-Veg</b> dishes, list active <b>Coupons</b>, or show you <b>How to Order</b>. What are you craving today?";
+                    }
+                    return "I am here to guide you through Food Fiesta! You can:<br><br>• Ask for <b>Veg Dishes</b> or <b>Non-Veg Specials</b>.<br>• Ask for active <b>Coupon Codes</b>.<br>• Ask <b>How to place an order</b>.";
+                };
 
-            function askAIChip(chipText) {
-                document.getElementById("aiChatInput").value = chipText;
-                sendAIMessage();
-            }
+                return (
+                    <div>
+                        {/* Floating React Chat Trigger Button */}
+                        <div className="ai-chat-btn" onClick={() => setIsOpen(!isOpen)}>
+                            <div className="pulse"></div>
+                            <i className="fa-solid fa-robot"></i>
+                        </div>
 
-            function addMessage(text, isUser) {
-                const messagesContainer = document.getElementById("aiChatMessages");
-                const msg = document.createElement("div");
-                msg.className = "ai-msg " + (isUser ? "user" : "bot");
-                msg.innerHTML = text;
-                messagesContainer.appendChild(msg);
-                messagesContainer.scrollTop = messagesContainer.scrollHeight;
-            }
+                        {/* Slide-out Glassmorphic Chat Panel */}
+                        <div className={`ai-chat-window ${isOpen ? 'active' : ''}`}>
+                            <div className="ai-chat-header">
+                                <h3><i className="fa-solid fa-wand-magic-sparkles"></i> Fiesta React AI</h3>
+                                <button className="ai-chat-close" onClick={() => setIsOpen(false)}>
+                                    <i className="fa-solid fa-xmark"></i>
+                                </button>
+                            </div>
 
-            function sendAIMessage() {
-                const input = document.getElementById("aiChatInput");
-                const text = input.value.trim();
-                if (!text) return;
+                            <div className="ai-chat-messages">
+                                {messages.map((msg, idx) => (
+                                    <div key={idx} className={`ai-msg ${msg.isBot ? 'bot' : 'user'}`} dangerouslySetInnerHTML={{ __html: msg.text }}></div>
+                                ))}
+                                {isTyping && (
+                                    <div className="ai-msg bot" style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '10px 16px' }}>
+                                        <span style={{ fontStyle: 'italic', color: 'var(--on-surface-variant)', fontSize: '0.8rem' }}>AI is thinking</span>
+                                        <span className="dot-typing"></span>
+                                    </div>
+                                )}
+                                <div ref={messagesEndRef} />
+                            </div>
 
-                addMessage(text, true);
-                input.value = "";
+                            <div className="ai-chat-chips">
+                                <span className="ai-chip" onClick={() => handleSend('Show Veg Dishes 🥗')}>Veg Dishes 🥗</span>
+                                <span className="ai-chip" onClick={() => handleSend('Show Non-Veg Specials 🍗')}>Non-Veg Specials 🍗</span>
+                                <span className="ai-chip" onClick={() => handleSend('Check Coupon Deals 🎟️')}>Coupons 🎟️</span>
+                            </div>
 
-                // Bot response simulation with rich details
-                setTimeout(() => {
-                    const response = getAIResponse(text);
-                    addMessage(response, false);
-                }, 600);
-            }
+                            <div className="ai-chat-input-area">
+                                <input 
+                                    type="text" 
+                                    className="ai-input" 
+                                    value={inputValue}
+                                    onChange={(e) => setInputValue(e.target.value)}
+                                    onKeyPress={(e) => e.key === 'Enter' && handleSend()}
+                                    placeholder="Ask about dishes, coupons..." 
+                                />
+                                <button className="ai-send-btn" onClick={() => handleSend()}>
+                                    <i className="fa-solid fa-paper-plane"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                );
+            };
 
-            function getAIResponse(query) {
-                const q = query.toLowerCase();
-
-                if (q.includes("veg") && !q.includes("non")) {
-                    return "💚 <b>Here are our delicious Vegetarian options:</b><br><br>• <b>Paneer Butter Masala (₹280)</b>: Rich cottage cheese in velvety tomato gravy.<br>• <b>Veg Manchurian (₹220)</b>: Savory veggie balls in tangy oriental soy sauce.<br>• <b>Gulab Jamun (₹120)</b>: Soft warm milk-solid dumplings dipped in cardamom syrup.<br><br>💡 <i>Tip: Log in to your User Account and click 'Order Now' to apply coupons!</i>";
-                }
-
-                if (q.includes("non-veg") || q.includes("chicken") || q.includes("meat")) {
-                    return "🍗 <b>Here are our mouth-watering Non-Vegetarian specials:</b><br><br>• <b>Hyderabadi Chicken Biryani (₹350)</b>: Authentic long-grain basmati rice with tender chicken.<br>• <b>Chicken Tikka Tandoori (₹320)</b>: Charcoal-grilled smoky tandoori chicken.<br><br>🎉 <i>Use coupon <b>BIRYANI20</b> to get 20% off on all Biryani orders!</i>";
-                }
-
-                if (q.includes("coupon") || q.includes("code") || q.includes("discount") || q.includes("deal")) {
-                    return "🎟️ <b>Active Coupons at Food Fiesta:</b><br><br>• <b style='color: var(--primary);'>WELCOME10</b>: 10% discount on all items.<br>• <b style='color: var(--primary);'>FIESTA50</b>: Flat ₹50 off on order values of ₹150 or more.<br>• <b style='color: var(--primary);'>BIRYANI20</b>: 20% discount on any Biryani order.<br><br>✍️ <i>To apply, select a dish on your Dashboard, type the code in the Checkout Form, and watch the price drop instantly!</i>";
-                }
-
-                if (q.includes("order") || q.includes("how") || q.includes("buy")) {
-                    return "💡 <b>Ordering is simple:</b><br><br>1. Click <b>Sign In</b> (top right) and choose <b>User Login</b>.<br>2. Don't have an account? Click <b>Create one now</b>.<br>3. Once logged in, you will be taken to your <b>User Dashboard</b> showing our full menu.<br>4. Click <b>Order Now</b>, fill in your Delivery Address, Phone Number, and Coupon Code, then click <b>Confirm</b>.<br><br>Your order details will update instantly in our Railway SQL database! 🚀";
-                }
-
-                if (q.includes("hello") || q.includes("hi") || q.includes("hey")) {
-                    return "Hello! I am your Food Fiesta AI Guide. I can show you <b>Veg</b> or <b>Non-Veg</b> dishes, list active <b>Coupons</b>, or show you <b>How to Order</b>. What are you craving today?";
-                }
-
-                return "I am here to guide you through Food Fiesta! You can:<br><br>• Ask for <b>Veg Dishes</b> or <b>Non-Veg Specials</b>.<br>• Ask for active <b>Coupon Codes</b>.<br>• Ask <b>How to place an order</b>.<br><br>Feel free to click any of the quick action buttons below for instant answers!";
-            }
+            // Mount the React Application
+            const root = ReactDOM.createRoot(document.getElementById('react-chatbot-root'));
+            root.render(<ChatbotApp />);
         </script>
     </div>
 </body>

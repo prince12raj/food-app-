@@ -1,4 +1,5 @@
 package com.example.demo.controllers;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -21,7 +22,7 @@ public class UserController
 
 	@PostMapping("/addingUser")
 	@Operation(summary = "Add a user", description = "Creates a new user profile manually from the admin panel")
-	public String  addUser(@ModelAttribute User user)
+	public String addUser(@ModelAttribute User user)
 	{
 		System.out.println(user);
 		this.services.addUser(user);
@@ -32,6 +33,13 @@ public class UserController
 	@Operation(summary = "Register as a customer", description = "Self-registration endpoint for new users")
 	public String registerUser(@ModelAttribute("userRegistration") User user, Model model)
 	{
+		// Safe lookup checks if email already exists to prevent database constraint violations
+		User existing = this.services.getUserByEmail(user.getUemail());
+		if (existing != null) {
+			model.addAttribute("error", "Email is already registered! Please sign in.");
+			model.addAttribute("userRegistration", user);
+			return "register";
+		}
 		this.services.addUser(user);
 		return "redirect:/login";
 	}
@@ -46,12 +54,9 @@ public class UserController
 
 	@GetMapping("/deleteUser/{id}")
 	@Operation(summary = "Delete a user", description = "Removes a customer account by ID")
-	public String deleteUser(@PathVariable("id" )int id)
+	public String deleteUser(@PathVariable("id") int id)
 	{
 		this.services.deleteUser(id);
 		return "redirect:/admin/services";
 	}
-	
-
-
 }
