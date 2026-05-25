@@ -1,0 +1,249 @@
+<!doctype html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Menu | Food Fiesta</title>
+    <link rel="stylesheet" th:href="@{/css/main.css}" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <style>
+        .menu-container {
+            max-width: 1300px;
+            margin: 0 auto;
+            padding: 140px 5% 100px;
+        }
+
+        .menu-header {
+            text-align: center;
+            margin-bottom: 80px;
+        }
+
+        .menu-header h1 {
+            font-size: 3.5rem;
+            margin-bottom: 15px;
+        }
+
+        .menu-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 50px;
+        }
+
+        .food-card {
+            background: white;
+            border-radius: 24px;
+            overflow: hidden;
+            position: relative;
+            transition: var(--transition-soft);
+            border: 1px solid var(--outline-variant);
+        }
+
+        .food-card:hover {
+            transform: translateY(-12px);
+            box-shadow: 0 30px 60px rgba(0, 0, 0, 0.08);
+        }
+
+        .image-wrapper {
+            width: 100%;
+            height: 280px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .image-wrapper img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.6s ease;
+        }
+
+        .food-card:hover .image-wrapper img {
+            transform: scale(1.1);
+        }
+
+        .card-content {
+            padding: 25px;
+            position: relative;
+            background: white;
+        }
+
+        .price-tag {
+            background: var(--primary);
+            color: white;
+            padding: 8px 15px;
+            border-radius: 50px;
+            font-weight: 700;
+            position: absolute;
+            top: -25px;
+            right: 25px;
+            box-shadow: 0 8px 15px rgba(176, 47, 0, 0.2);
+        }
+
+        .rating {
+            color: #ffc107;
+            font-size: 0.9rem;
+            margin-bottom: 10px;
+            display: block;
+        }
+
+        .buy-btn {
+            display: block;
+            width: 100%;
+            text-align: center;
+            margin-top: 20px;
+            padding: 12px;
+            border-radius: 12px;
+            background: var(--surface-container-low);
+            color: var(--on-surface);
+            text-decoration: none;
+            font-weight: 600;
+            transition: var(--transition-soft);
+        }
+
+        .buy-btn:hover {
+            background: var(--primary);
+            color: white;
+        }
+
+        /* Filter Section */
+        .filters {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-bottom: 50px;
+            flex-wrap: wrap;
+        }
+
+        .filter-btn {
+            padding: 10px 25px;
+            border-radius: 50px;
+            border: 1px solid var(--outline-variant);
+            background: white;
+            cursor: pointer;
+            font-weight: 500;
+            transition: var(--transition-soft);
+        }
+
+        .filter-btn.active, .filter-btn:hover {
+            background: var(--primary);
+            color: white;
+            border-color: var(--primary);
+        }
+    </style>
+</head>
+
+<body>
+    <nav th:replace="~{Navigation::navbar()}"></nav>
+
+    <div class="menu-container">
+        <div class="menu-header animate-up">
+            <span style="color: var(--primary); font-weight: 700; text-transform: uppercase; letter-spacing: 2px;">Curation</span>
+            <h1>The <span style="color: var(--primary);">Fiesta</span> Menu</h1>
+            <p style="color: var(--on-surface-variant);">Discover a symphony of flavors crafted by experts.</p>
+        </div>
+
+        <div style="display: flex; flex-direction: column; align-items: center; gap: 16px; margin-bottom: 50px;">
+            <div class="filters animate-up" style="animation-delay: 0.1s; margin-bottom: 0;">
+                <button class="filter-btn active" data-category="all">All Dishes</button>
+                <button class="filter-btn" data-category="Biryani">Biryani</button>
+                <button class="filter-btn" data-category="North Indian">North Indian</button>
+                <button class="filter-btn" data-category="Chinese">Chinese</button>
+                <button class="filter-btn" data-category="Desserts">Desserts</button>
+            </div>
+            
+            <div class="filters animate-up" style="animation-delay: 0.15s; margin-bottom: 0;">
+                <button class="filter-btn active" id="type-all" onclick="filterVeg('all')">All Types</button>
+                <button class="filter-btn" id="type-veg" onclick="filterVeg('veg')" style="border-color: #22c55e; color: #16a34a;"><i class="fa-solid fa-circle-dot"></i> Veg Only</button>
+                <button class="filter-btn" id="type-nonveg" onclick="filterVeg('nonveg')" style="border-color: #ef4444; color: #dc2626;"><i class="fa-solid fa-square-caret-up"></i> Non-Veg Only</button>
+            </div>
+        </div>
+
+        <div class="menu-grid">
+            <!-- Dynamic loop through products seeded in DB -->
+            <div th:each="product : ${products}" class="food-card animate-up" 
+                 th:data-category="${product.pname.toLowerCase().contains('biryani') ? 'Biryani' : (product.pname.toLowerCase().contains('paneer') || product.pname.toLowerCase().contains('veg') || product.pname.toLowerCase().contains('manchurian') ? 'North Indian' : (product.pname.toLowerCase().contains('momo') || product.pname.toLowerCase().contains('noodle') ? 'Chinese' : 'Desserts'))}"
+                 th:data-veg="${product.isVeg}">
+                <div class="image-wrapper">
+                    <!-- Dynamic image selector based on name to keep rich visuals active -->
+                    <img th:if="${product.pname.contains('Biryani')}" th:src="@{/Images/biryani/Biryani_of_Hyderabadi.jpg}" alt="Biryani">
+                    <img th:if="${product.pname.contains('Paneer')}" th:src="@{/Images/paneer/paneer-butter-masala.jpg}" alt="Paneer">
+                    <img th:if="${product.pname.contains('Chicken') && !product.pname.contains('Biryani')}" th:src="@{/Images/chicken/butter-chicken.jpg}" alt="Chicken">
+                    <img th:if="${product.pname.contains('Manchurian') || product.pname.contains('Potato')}" th:src="@{/Images/north-india-food/Honey-Chilli-Potato.jpg}" alt="Veg Manchurian">
+                    <img th:if="${product.pname.contains('Gulab') || product.pname.contains('Khir')}" th:src="@{/Images/north-india-food/Gulab Jamun.jpg}" alt="Dessert">
+                    <img th:if="${!product.pname.contains('Biryani') && !product.pname.contains('Paneer') && !product.pname.contains('Chicken') && !product.pname.contains('Manchurian') && !product.pname.contains('Potato') && !product.pname.contains('Gulab') && !product.pname.contains('Khir')}" th:src="@{/Images/north-india-food/chola-bhatura.jpg}" alt="Food Item">
+                </div>
+                <div class="card-content">
+                    <span class="price-tag" th:text="'₹' + ${product.pprice}">₹300</span>
+                    <span class="rating">
+                        <i class="fa-solid fa-circle-dot" th:style="${product.isVeg ? 'color: #22c55e;' : 'color: #ef4444;'}"></i>
+                        <span th:text="${product.isVeg ? 'Veg' : 'Non-Veg'}" th:style="${product.isVeg ? 'color: #22c55e; font-weight: 700; font-size: 0.75rem;' : 'color: #ef4444; font-weight: 700; font-size: 0.75rem;'}">Veg</span>
+                    </span>
+                    <h3 th:text="${product.pname}" style="margin-top: 5px;">Dish Name</h3>
+                    <p style="font-size: 0.9rem; color: var(--on-surface-variant); margin-top: 5px;" th:text="${product.pdescription}">Description</p>
+                    <a href="#" class="buy-btn buy-action">Order Now</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let activeCategory = 'all';
+        let activeVegFilter = 'all';
+
+        const filterBtns = document.querySelectorAll(".filter-btn[data-category]");
+        const foodCards = document.querySelectorAll(".food-card");
+
+        filterBtns.forEach(btn => {
+            btn.addEventListener("click", () => {
+                filterBtns.forEach(b => b.classList.remove("active"));
+                btn.classList.add("active");
+                activeCategory = btn.getAttribute("data-category");
+                applyFilters();
+            });
+        });
+
+        function filterVeg(type) {
+            document.getElementById("type-all").classList.remove("active");
+            document.getElementById("type-veg").classList.remove("active");
+            document.getElementById("type-nonveg").classList.remove("active");
+            
+            if (type === 'all') document.getElementById("type-all").classList.add("active");
+            if (type === 'veg') document.getElementById("type-veg").classList.add("active");
+            if (type === 'nonveg') document.getElementById("type-nonveg").classList.add("active");
+            
+            activeVegFilter = type;
+            applyFilters();
+        }
+
+        function applyFilters() {
+            foodCards.forEach(card => {
+                const cardCategory = card.getAttribute("data-category");
+                const isVegCard = card.getAttribute("data-veg") === "true";
+                
+                const matchesCategory = (activeCategory === "all" || cardCategory === activeCategory);
+                let matchesVeg = true;
+                if (activeVegFilter === 'veg') matchesVeg = isVegCard;
+                if (activeVegFilter === 'nonveg') matchesVeg = !isVegCard;
+
+                if (matchesCategory && matchesVeg) {
+                    card.style.display = "block";
+                    card.classList.add("animate-up");
+                } else {
+                    card.style.display = "none";
+                }
+            });
+        }
+
+        // Buy Action Alert
+        document.querySelectorAll(".buy-action").forEach(button => {
+            button.addEventListener("click", function (event) {
+                event.preventDefault();
+                alert("Welcome to Food Fiesta! Please Log In as a User to place your order.");
+                window.location.href = "/login";
+            });
+        });
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" th:href="@{/css/main.css}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+</head>
+<body>
+    <nav th:fragment="navbar()" class="navbar">
+        <a href="/home" class="nav-logo">
+            <i class="fa-solid fa-fire-burner"></i> Food Fiesta
+        </a>
+        <div class="nav-links">
+            <a href="/home">Home</a>
+            <a href="/products">Menu</a>
+            <a href="/location">Location</a>
+            <a href="/about">Story</a>
+            <!-- Conditional links for logged-in Users -->
+            <a th:if="${session.loggedInUser}" href="/dashboard" class="btn btn-outline" style="padding: 10px 24px;">Dashboard</a>
+            <!-- Conditional links for logged-in Admins -->
+            <a th:if="${session.loggedInAdmin}" href="/admin/services" class="btn btn-outline" style="padding: 10px 24px;">Admin Portal</a>
+            <!-- Logout if anyone is logged in -->
+            <a th:if="${session.loggedInUser != null || session.loggedInAdmin != null}" href="/logout" class="btn btn-primary" style="padding: 10px 24px; color: white;">Sign Out</a>
+            <!-- Sign In if no one is logged in -->
+            <a th:if="${session.loggedInUser == null && session.loggedInAdmin == null}" href="/login" class="btn btn-primary" style="padding: 10px 24px; color: white;">Sign In</a>
+        </div>
+        
+        <!-- Nested AI Assistant fragment call so it loads everywhere the navbar is imported -->
+        <div th:replace="~{Navigation::ai()}"></div>
+    </nav>
+
+    <!-- Floating AI Assistant Chatbot Fragment -->
+    <div th:fragment="ai()">
+        <!-- CSS for AI Assistant -->
+        <style>
+            .ai-chat-btn {
+                position: fixed;
+                bottom: 30px;
+                right: 30px;
+                width: 60px;
+                height: 60px;
+                background: linear-gradient(135deg, var(--primary), var(--primary-light));
+                color: white;
+                border-radius: 50%;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-size: 1.5rem;
+                cursor: pointer;
+                box-shadow: 0 10px 25px rgba(194, 65, 12, 0.4);
+                transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+                z-index: 9999;
+                border: 2px solid rgba(255, 255, 255, 0.2);
+            }
+            .ai-chat-btn:hover {
+                transform: scale(1.1) rotate(5deg);
+                box-shadow: 0 12px 30px rgba(194, 65, 12, 0.6);
+            }
+            .ai-chat-btn .pulse {
+                position: absolute;
+                width: 100%;
+                height: 100%;
+                background: var(--primary);
+                border-radius: 50%;
+                opacity: 0.4;
+                animation: ai-pulse 2s infinite;
+                z-index: -1;
+            }
+            @keyframes ai-pulse {
+                0% { transform: scale(1); opacity: 0.4; }
+                100% { transform: scale(1.6); opacity: 0; }
+            }
+            .ai-chat-window {
+                position: fixed;
+                bottom: 105px;
+                right: 30px;
+                width: 380px;
+                height: 520px;
+                background: rgba(255, 255, 255, 0.85);
+                backdrop-filter: blur(20px);
+                border: 1px solid rgba(255, 255, 255, 0.4);
+                border-radius: 24px;
+                box-shadow: 0 20px 40px rgba(0,0,0,0.15);
+                display: flex;
+                flex-direction: column;
+                overflow: hidden;
+                transform: translateY(30px) scale(0.95);
+                opacity: 0;
+                pointer-events: none;
+                transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+                z-index: 9999;
+            }
+            .ai-chat-window.active {
+                transform: translateY(0) scale(1);
+                opacity: 1;
+                pointer-events: auto;
+            }
+            .ai-chat-header {
+                background: linear-gradient(135deg, var(--primary), var(--primary-light));
+                padding: 20px;
+                color: white;
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            }
+            .ai-chat-header h3 {
+                font-size: 1.1rem;
+                font-weight: 700;
+                display: flex;
+                align-items: center;
+                gap: 8px;
+                margin: 0;
+            }
+            .ai-chat-close {
+                background: rgba(255, 255, 255, 0.2);
+                border: none;
+                color: white;
+                width: 28px;
+                height: 28px;
+                border-radius: 50%;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                cursor: pointer;
+                transition: all 0.2s ease;
+            }
+            .ai-chat-close:hover {
+                background: rgba(255,255,255,0.4);
+            }
+            .ai-chat-messages {
+                flex: 1;
+                padding: 20px;
+                overflow-y: auto;
+                display: flex;
+                flex-direction: column;
+                gap: 12px;
+                background: rgba(248, 250, 252, 0.5);
+            }
+            .ai-msg {
+                max-width: 80%;
+                padding: 12px 16px;
+                border-radius: 16px;
+                font-size: 0.875rem;
+                line-height: 1.4;
+                animation: msg-fade 0.3s ease;
+            }
+            @keyframes msg-fade {
+                from { opacity: 0; transform: translateY(10px); }
+                to { opacity: 1; transform: translateY(0); }
+            }
+            .ai-msg.bot {
+                background: white;
+                color: var(--on-surface);
+                align-self: flex-start;
+                border-bottom-left-radius: 4px;
+                box-shadow: 0 2px 5px rgba(0,0,0,0.02);
+                border: 1px solid var(--outline);
+            }
+            .ai-msg.user {
+                background: var(--primary);
+                color: white;
+                align-self: flex-end;
+                border-bottom-right-radius: 4px;
+                box-shadow: 0 4px 10px rgba(194, 65, 12, 0.2);
+            }
+            .ai-chat-chips {
+                display: flex;
+                flex-wrap: wrap;
+                gap: 8px;
+                padding: 12px 20px;
+                background: white;
+                border-top: 1px solid var(--outline);
+            }
+            .ai-chip {
+                padding: 6px 14px;
+                background: var(--primary-container);
+                color: var(--primary);
+                border-radius: 50px;
+                font-size: 0.75rem;
+                font-weight: 600;
+                cursor: pointer;
+                transition: all 0.2s ease;
+                border: 1px solid rgba(194, 65, 12, 0.1);
+            }
+            .ai-chip:hover {
+                background: var(--primary);
+                color: white;
+            }
+            .ai-chat-input-area {
+                padding: 15px 20px;
+                background: white;
+                display: flex;
+                gap: 10px;
+                border-top: 1px solid var(--outline);
+                align-items: center;
+            }
+            .ai-input {
+                flex: 1;
+                border: 1px solid var(--outline);
+                border-radius: 12px;
+                padding: 10px 14px;
+                font-size: 0.875rem;
+                outline: none;
+                transition: all 0.2s ease;
+            }
+            .ai-input:focus {
+                border-color: var(--primary);
+                box-shadow: 0 0 0 3px rgba(194, 65, 12, 0.1);
+            }
+            .ai-send-btn {
+                background: var(--primary);
+                color: white;
+                border: none;
+                width: 38px;
+                height: 38px;
+                border-radius: 10px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                cursor: pointer;
+                transition: all 0.2s ease;
+            }
+            .ai-send-btn:hover {
+                background: var(--primary-light);
+                transform: scale(1.05);
+            }
+        </style>
+
+        <!-- AI Button -->
+        <div class="ai-chat-btn" onclick="toggleAIChat()">
+            <div class="pulse"></div>
+            <i class="fa-solid fa-robot"></i>
+        </div>
+
+        <!-- AI Chat Window -->
+        <div class="ai-chat-window" id="aiChatWindow">
+            <div class="ai-chat-header">
+                <h3><i class="fa-solid fa-wand-magic-sparkles"></i> Fiesta AI Assistant</h3>
+                <button class="ai-chat-close" onclick="toggleAIChat()">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+
+            <div class="ai-chat-messages" id="aiChatMessages">
+                <div class="ai-msg bot">
+                    👋 Hello! Welcome to Food Fiesta! I am your AI Assistant. How can I help you satisfy your cravings today?
+                </div>
+            </div>
+
+            <div class="ai-chat-chips">
+                <span class="ai-chip" onclick="askAIChip('Show Veg Dishes 🥗')">Show Veg Dishes 🥗</span>
+                <span class="ai-chip" onclick="askAIChip('Show Non-Veg Specials 🍗')">Non-Veg Specials 🍗</span>
+                <span class="ai-chip" onclick="askAIChip('Check Coupon Deals 🎟️')">Active Coupons 🎟️</span>
+                <span class="ai-chip" onclick="askAIChip('How to Order? 💡')">How to Order? 💡</span>
+            </div>
+
+            <div class="ai-chat-input-area">
+                <input type="text" class="ai-input" id="aiChatInput" placeholder="Ask about items, coupons, orders..." onkeypress="handleAIKeyPress(event)">
+                <button class="ai-send-btn" onclick="sendAIMessage()">
+                    <i class="fa-solid fa-paper-plane"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- AI Chat JavaScript -->
+        <script>
+            function toggleAIChat() {
+                const chatWindow = document.getElementById("aiChatWindow");
+                chatWindow.classList.toggle("active");
+            }
+
+            function handleAIKeyPress(event) {
+                if (event.key === "Enter") {
+                    sendAIMessage();
+                }
+            }
+
+            function askAIChip(chipText) {
+                document.getElementById("aiChatInput").value = chipText;
+                sendAIMessage();
+            }
+
+            function addMessage(text, isUser) {
+                const messagesContainer = document.getElementById("aiChatMessages");
+                const msg = document.createElement("div");
+                msg.className = "ai-msg " + (isUser ? "user" : "bot");
+                msg.innerHTML = text;
+                messagesContainer.appendChild(msg);
+                messagesContainer.scrollTop = messagesContainer.scrollHeight;
+            }
+
+            function sendAIMessage() {
+                const input = document.getElementById("aiChatInput");
+                const text = input.value.trim();
+                if (!text) return;
+
+                addMessage(text, true);
+                input.value = "";
+
+                // Bot response simulation with rich details
+                setTimeout(() => {
+                    const response = getAIResponse(text);
+                    addMessage(response, false);
+                }, 600);
+            }
+
+            function getAIResponse(query) {
+                const q = query.toLowerCase();
+
+                if (q.includes("veg") && !q.includes("non")) {
+                    return "💚 <b>Here are our delicious Vegetarian options:</b><br><br>• <b>Paneer Butter Masala (₹280)</b>: Rich cottage cheese in velvety tomato gravy.<br>• <b>Veg Manchurian (₹220)</b>: Savory veggie balls in tangy oriental soy sauce.<br>• <b>Gulab Jamun (₹120)</b>: Soft warm milk-solid dumplings dipped in cardamom syrup.<br><br>💡 <i>Tip: Log in to your User Account and click 'Order Now' to apply coupons!</i>";
+                }
+
+                if (q.includes("non-veg") || q.includes("chicken") || q.includes("meat")) {
+                    return "🍗 <b>Here are our mouth-watering Non-Vegetarian specials:</b><br><br>• <b>Hyderabadi Chicken Biryani (₹350)</b>: Authentic long-grain basmati rice with tender chicken.<br>• <b>Chicken Tikka Tandoori (₹320)</b>: Charcoal-grilled smoky tandoori chicken.<br><br>🎉 <i>Use coupon <b>BIRYANI20</b> to get 20% off on all Biryani orders!</i>";
+                }
+
+                if (q.includes("coupon") || q.includes("code") || q.includes("discount") || q.includes("deal")) {
+                    return "🎟️ <b>Active Coupons at Food Fiesta:</b><br><br>• <b style='color: var(--primary);'>WELCOME10</b>: 10% discount on all items.<br>• <b style='color: var(--primary);'>FIESTA50</b>: Flat ₹50 off on order values of ₹150 or more.<br>• <b style='color: var(--primary);'>BIRYANI20</b>: 20% discount on any Biryani order.<br><br>✍️ <i>To apply, select a dish on your Dashboard, type the code in the Checkout Form, and watch the price drop instantly!</i>";
+                }
+
+                if (q.includes("order") || q.includes("how") || q.includes("buy")) {
+                    return "💡 <b>Ordering is simple:</b><br><br>1. Click <b>Sign In</b> (top right) and choose <b>User Login</b>.<br>2. Don't have an account? Click <b>Create one now</b>.<br>3. Once logged in, you will be taken to your <b>User Dashboard</b> showing our full menu.<br>4. Click <b>Order Now</b>, fill in your Delivery Address, Phone Number, and Coupon Code, then click <b>Confirm</b>.<br><br>Your order details will update instantly in our Railway SQL database! 🚀";
+                }
+
+                if (q.includes("hello") || q.includes("hi") || q.includes("hey")) {
+                    return "Hello! I am your Food Fiesta AI Guide. I can show you <b>Veg</b> or <b>Non-Veg</b> dishes, list active <b>Coupons</b>, or show you <b>How to Order</b>. What are you craving today?";
+                }
+
+                return "I am here to guide you through Food Fiesta! You can:<br><br>• Ask for <b>Veg Dishes</b> or <b>Non-Veg Specials</b>.<br>• Ask for active <b>Coupon Codes</b>.<br>• Ask <b>How to place an order</b>.<br><br>Feel free to click any of the quick action buttons below for instant answers!";
+            }
+        </script>
+    </div>
+</body>
+</html>
