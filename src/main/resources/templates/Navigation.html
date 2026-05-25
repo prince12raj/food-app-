@@ -298,6 +298,7 @@
 
         <!-- React Component Source compiled on-the-fly by Babel in the browser -->
         <script type="text/babel">
+            /*<![CDATA[*/
             const ChatbotApp = () => {
                 const [isOpen, setIsOpen] = React.useState(false);
                 const [messages, setMessages] = React.useState([
@@ -409,6 +410,7 @@
             // Mount the React Application
             const root = ReactDOM.createRoot(document.getElementById('react-chatbot-root'));
             root.render(<ChatbotApp />);
+            /*]]>*/
         </script>
     </div>
 </body>
